@@ -3,6 +3,7 @@ import tornado.ioloop
 
 import json
 
+
 class BasicRequestHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("Hello from Python Tornado server!")
@@ -28,7 +29,7 @@ class ResourceRequestHandler(tornado.web.RequestHandler):
         self.write(f"So you would like to see {jojo} in part {part}?")
 
 
-class ListRequetHandler(tornado.web.RequestHandler):
+class ListRequestHandler(tornado.web.RequestHandler):
     def get(self):
         self.write(json.dumps(get_jojos("list.txt")))
 
@@ -44,9 +45,21 @@ class ListRequetHandler(tornado.web.RequestHandler):
             self.write(json.dumps({"message": f"{jojo} added successfully to jojo list!"}))
 
 
+class UploadHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("index.html")
+
+    def post(self):
+        files = self.request.files["imgFiles"]
+
+        for file in files:
+            with open(f"img-folder/{file.filename}", "wb") as f:
+                f.write(file.body)
+
+
 def get_jojos(filename: str) -> list:
     with open(filename, "r") as list:
-            return list.read().split('\n')
+        return list.read().split('\n')
 
 
 if __name__ == "__main__":
@@ -55,7 +68,9 @@ if __name__ == "__main__":
         (r"/html", HtmlRequestHandler),
         (r"/query", QueryRequestHandler),
         (r"/resource/([a-z]+)/([0-9]+)", ResourceRequestHandler),
-        (r"/list", ListRequetHandler)
+        (r"/list", ListRequestHandler),
+        (r"/img/(.*)", tornado.web.StaticFileHandler, {"path": "img-folder"}),
+        (r"/upload", UploadHandler)
     ])
 
     port = 8080

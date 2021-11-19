@@ -9,14 +9,42 @@
 <body>
     <h1>Jojo's List</h1>
 
-    <select>
-        <option>Jonathan</option>
-        <option>Joseph</option>
-        <option>Jotaro</option>
-        <option>Josuke</option>
-        <option>Giorno</option>
-        <option>Joline</option>
+    <select id="jojoList">
     </select>
+
+    <label>Add a new jojo!</label>
+    <input type="text" id="newJojo">
+    <button id="addBtn">Add jojo</button>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="imgFiles" accept=".jpg, .png">
+        <input type="submit" value="upload">
+    </form>
+
+    <script>
+
+        // GET request
+        const jojoList = document.getElementById("jojoList")
+
+        fetch("http://localhost:8080/list").then(response => response.json()).then(jsonResponse => jsonResponse.forEach(jojo => {
+            let option = document.createElement("option")
+            option.textContent = jojo
+            jojoList.appendChild(option)            
+        }))
+
+        // POST request
+        const newJojo = document.getElementById("newJojo")
+        const addBtn = document.getElementById("addBtn")
+
+        addBtn.addEventListener("click", event => {
+            let name = newJojo.value;
+            fetch(`http://localhost:8080/list?jojo=${name}`, {"method" : "POST"})
+            .then(response => response.json())
+            .then(jsonResponse => alert(jsonResponse.message))
+        })
+
+
+    </script>
     
 </body>
 </html>
